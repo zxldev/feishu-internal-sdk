@@ -42,11 +42,14 @@ func (t Tenant) RobotMessageCallback(w http.ResponseWriter, r *http.Request, eve
 	}
 
 	err = json.Unmarshal(body, &event)
+	if err != nil {
+		return
+	}
 	if event.Token != FeiShu.VerificationToken {
 		w.WriteHeader(404)
 		return
 	}
-	if err != nil && event.Type != "" {
+	if event.Type != "" {
 		if event.Type == "url_verification" {
 			r.Write(bytes.NewBufferString(`{"challenge":"` + event.Challenge + `"}`))
 			return
