@@ -33,14 +33,17 @@ func (t Tenant) RobotMessageCallback(w http.ResponseWriter, r *http.Request, eve
 		encodeMessage := model.EncodeMessage{}
 		err = json.Unmarshal(body, &encodeMessage)
 		if err != nil {
-			return
+			return err
 		}
-		c, err := aes.NewCipher([]byte(FeiShu.EncryptKey))
-		if err != nil {
-			return
+		c, err2 := aes.NewCipher([]byte(FeiShu.EncryptKey))
+		if err2 != nil {
+			return err2
 		}
 		logrus.Info("密文：", encodeMessage.Encrypt)
-		baseDecode, err := base64.StdEncoding.DecodeString(encodeMessage.Encrypt)
+		baseDecode, err3 := base64.StdEncoding.DecodeString(encodeMessage.Encrypt)
+		if err3 != nil {
+			return err3
+		}
 		c.Decrypt(body, baseDecode)
 	}
 
