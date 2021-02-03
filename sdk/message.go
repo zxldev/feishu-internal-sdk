@@ -42,7 +42,7 @@ func (t Tenant) RobotMessageCallback(w http.ResponseWriter, r *http.Request, eve
 	}
 
 	err = json.Unmarshal(body, &event)
-	if event.Token != "" {
+	if event.Token != FeiShu.VerificationToken {
 		w.WriteHeader(404)
 		return
 	}
