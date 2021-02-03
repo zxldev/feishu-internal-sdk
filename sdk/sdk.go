@@ -15,13 +15,15 @@ import (
 var FeiShu FeiShuInternal
 
 type FeiShuInternal struct {
-	AppId     string  `json:"app_id"`
-	AppSerect string  `json:"app_serect"`
-	Tenant    *Tenant `json:"tenant"`
+	AppId             string  `json:"app_id"`
+	AppSerect         string  `json:"app_serect"`
+	EncryptKey        string  `json:"encrypt_key"`
+	VerificationToken string  `json:"verification_token"`
+	Tenant            *Tenant `json:"tenant"`
 }
 
-func (f *FeiShuInternal) Init(AppId, AppSerect string) {
-	FeiShu = FeiShuInternal{AppId: AppId, AppSerect: AppSerect, Tenant: &Tenant{}}
+func (f *FeiShuInternal) Init(AppId, AppSerect, EncryptKey, VerificationToken string) {
+	FeiShu = FeiShuInternal{AppId: AppId, AppSerect: AppSerect, EncryptKey: EncryptKey, VerificationToken: VerificationToken, Tenant: &Tenant{}}
 }
 
 type Tenant struct {

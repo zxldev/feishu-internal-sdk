@@ -2,10 +2,13 @@ package sdk
 
 import (
 	"bytes"
+	"crypto/aes"
+	"encoding/base64"
 	"encoding/json"
 	"github.com/sirupsen/logrus"
 	"github.com/zxldev/feishu-internal-sdk/core/consts"
 	"github.com/zxldev/feishu-internal-sdk/core/model"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -18,10 +21,30 @@ func (t Tenant) SendMessage(msg model.Msg) {
 	}
 }
 
-func (t Tenant) RobotMessageCallback(w http.ResponseWriter, r *http.Request, eventCallback func(event model.Event), buttonCallBack func(button model.ButtonCallback)) {
-	rCopy := *r
+func (t Tenant) RobotMessageCallback(w http.ResponseWriter, r *http.Request, eventCallback func(event model.Event), buttonCallBack func(button model.ButtonCallback)) (err error) {
 	event := model.Event{}
-	err := json.NewDecoder(rCopy.Body).Decode(&event)
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return
+	}
+
+	if FeiShu.EncryptKey != "" { //设置了加密方式
+		encodeMessage := model.EncodeMessage{}
+		err := json.Unmarshal(body, &encodeMessage)
+		if err != nil {
+			return
+		}
+		c, err := aes.NewCipher([]byte(FeiShu.EncryptKey))
+		if err != nil {
+			return
+		}
+		logrus.Info("密文：", encodeMessage.Encrypt)
+		baseDecode, err := base64.StdEncoding.DecodeString(encodeMessage.Encrypt)
+		c.Decrypt(body, baseDecode)
+	}
+
+	err = json.Unmarshal(body, &event)
 	if event.Token != "" {
 		w.WriteHeader(404)
 		return
@@ -40,7 +63,10 @@ func (t Tenant) RobotMessageCallback(w http.ResponseWriter, r *http.Request, eve
 	//开始按照button 回调处理
 
 	buttonData := model.ButtonCallback{}
-	json.NewDecoder(rCopy.Body).Decode(&buttonData)
+	err = json.Unmarshal(body, &buttonData)
+	if err != nil {
+		return
+	}
 	buttonCallBack(buttonData)
-
+	return
 }
