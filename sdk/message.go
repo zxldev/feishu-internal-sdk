@@ -31,7 +31,7 @@ func (t Tenant) RobotMessageCallback(w http.ResponseWriter, r *http.Request, eve
 
 	if FeiShu.EncryptKey != "" { //设置了加密方式
 		encodeMessage := model.EncodeMessage{}
-		err := json.Unmarshal(body, &encodeMessage)
+		err = json.Unmarshal(body, &encodeMessage)
 		if err != nil {
 			return
 		}
