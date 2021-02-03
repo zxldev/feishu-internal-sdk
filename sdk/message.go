@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"bytes"
 	"encoding/json"
 	"github.com/sirupsen/logrus"
 	"github.com/zxldev/feishu-internal-sdk/core/consts"
@@ -51,7 +50,7 @@ func (t Tenant) RobotMessageCallback(w http.ResponseWriter, r *http.Request, eve
 	}
 	if event.Type != "" {
 		if event.Type == "url_verification" {
-			r.Write(bytes.NewBufferString(`{"challenge":"` + event.Challenge + `"}`))
+			w.Write([]byte(`{"challenge":"` + event.Challenge + `"}`))
 			return
 		} else if event.Type == "event_callback" {
 			eventCallback(event)
