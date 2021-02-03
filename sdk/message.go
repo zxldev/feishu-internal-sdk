@@ -2,12 +2,11 @@ package sdk
 
 import (
 	"bytes"
-	"crypto/aes"
-	"encoding/base64"
 	"encoding/json"
 	"github.com/sirupsen/logrus"
 	"github.com/zxldev/feishu-internal-sdk/core/consts"
 	"github.com/zxldev/feishu-internal-sdk/core/model"
+	"github.com/zxldev/feishu-internal-sdk/core/util/encrypt"
 	"io/ioutil"
 	"net/http"
 )
@@ -35,16 +34,11 @@ func (t Tenant) RobotMessageCallback(w http.ResponseWriter, r *http.Request, eve
 		if err != nil {
 			return err
 		}
-		c, err2 := aes.NewCipher([]byte(FeiShu.EncryptKey))
-		if err2 != nil {
-			return err2
+
+		body, err = encrypt.AesDecrypt(FeiShu.EncryptKey, encodeMessage.Encrypt)
+		if err != nil {
+			return err
 		}
-		logrus.Info("密文：", encodeMessage.Encrypt)
-		baseDecode, err3 := base64.StdEncoding.DecodeString(encodeMessage.Encrypt)
-		if err3 != nil {
-			return err3
-		}
-		c.Decrypt(body, baseDecode)
 	}
 
 	err = json.Unmarshal(body, &event)
