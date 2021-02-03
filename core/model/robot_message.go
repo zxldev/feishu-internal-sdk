@@ -1,6 +1,8 @@
 package model
 
-import "encoding/binary"
+import (
+	"encoding/binary"
+)
 
 //定义参照: /open-apis/message/v4/send/
 type Msg struct {
