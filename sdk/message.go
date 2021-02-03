@@ -19,7 +19,7 @@ func (t Tenant) SendMessage(msg model.Msg) {
 	}
 }
 
-func (t Tenant) RobotMessageCallback(w http.ResponseWriter, r *http.Request, eventCallback func(event model.Event), buttonCallBack func(button model.ButtonCallback)) (err error) {
+func (t Tenant) RobotMessageCallback(w http.ResponseWriter, r *http.Request, eventCallback func(event model.Event), action func(button model.EventAction)) (err error) {
 	event := model.Event{}
 
 	body, err := ioutil.ReadAll(r.Body)
@@ -61,11 +61,11 @@ func (t Tenant) RobotMessageCallback(w http.ResponseWriter, r *http.Request, eve
 
 	//开始按照button 回调处理
 
-	buttonData := model.ButtonCallback{}
-	err = json.Unmarshal(body, &buttonData)
+	actionData := model.EventAction{}
+	err = json.Unmarshal(body, &actionData)
 	if err != nil {
 		return
 	}
-	buttonCallBack(buttonData)
+	action(actionData)
 	return
 }

@@ -240,3 +240,12 @@ type CardElementNote struct {
 	Tag      string        `json:"tag"`
 	Elements []interface{} `json:"elements"`
 }
+
+type EventAction struct {
+	OpenId        string      `json:"open_id"`
+	UserId        string      `json:"user_id"`
+	OpenMessageId string      `json:"open_message_id"`
+	TenantKey     string      `json:"tenant_key"`
+	Token         string      `json:"token"`
+	Action        interface{} `json:"action"`
+}
