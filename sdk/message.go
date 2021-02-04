@@ -26,15 +26,16 @@ func (t Tenant) MessageCardCallback(w http.ResponseWriter, r *http.Request, acti
 	if err != nil {
 		return
 	}
+	logrus.Info(string(body))
 
 	err = json.Unmarshal(body, &event)
 	if err != nil {
 		return
 	}
-	if event.Token != FeiShu.VerificationToken {
-		w.WriteHeader(404)
-		return
-	}
+	//if event.Token != FeiShu.VerificationToken {
+	//	w.WriteHeader(404)
+	//	return
+	//}
 	if event.Type != "" {
 		if event.Type == "url_verification" {
 			w.Write([]byte(`{"challenge":"` + event.Challenge + `"}`))
