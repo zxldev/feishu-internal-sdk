@@ -1,13 +1,17 @@
 package sdk
 
 import (
+	"crypto/sha1"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/zxldev/feishu-internal-sdk/core/consts"
 	"github.com/zxldev/feishu-internal-sdk/core/model"
 	"github.com/zxldev/feishu-internal-sdk/core/util/encrypt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 func (t Tenant) SendMessage(msg model.Msg) {
@@ -42,6 +46,27 @@ func (t Tenant) MessageCardCallback(w http.ResponseWriter, r *http.Request, acti
 			return
 		}
 	}
+
+	//请求安全性校验
+	//@see https://open.feishu.cn/document/ukTMukTMukTM/uYzMxEjL2MTMx4iNzETM
+	timestamp := r.Header.Get("X-Lark-Request-Timestamp")
+	nonce := r.Header.Get("X-Lark-Request-Nonce")
+
+	var b strings.Builder
+	b.WriteString(timestamp)
+	b.WriteString(nonce)
+	b.WriteString(FeiShu.VerificationToken)
+	b.WriteString(string(body))
+	bs := []byte(b.String())
+	h := sha1.New()
+	h.Write(bs)
+	bs = h.Sum(nil)
+	sig := fmt.Sprintf("%x", bs)
+
+	if r.Header.Get("X-Lark-Signature") != sig {
+		return errors.New("http.StatusUnauthorized")
+	}
+
 	//开始按照button 回调处理
 
 	actionData := model.EventAction{}
